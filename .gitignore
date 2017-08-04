@@ -97,11 +97,8 @@ ENV/
 # Rope project settings
 .ropeproject
 
-# mkdocs documentation
-/site
-
 # mypy
 .mypy_cache/
 
 # migrate
-migrations/
+src/migrations/

@@ -1,27 +1,47 @@
 # The application object sets up and provides access to the facenet neural network interfaces
 
-import tensorflow as tf
 import numpy as np
-import cv2
+import tensorflow as tf
+
 from facenet.src.align import detect_face
+from src.models import Face, db
 
 
 class Application:
 
     def detect_face(self, img):
-        #convert img into an array
+        # convert img into an array
         im = np.array(img.data)
 
-        total_boxes, points = detect_face.detect_face(im, self.minsize, self.pnet, self.rnet, self.onet, self.threshold, self.factor)
+        total_boxes, points = detect_face.detect_face(im, self.minsize, self.pnet, self.rnet,
+                                                      self.onet, self.threshold, self.factor)
 
-        detectedFaces = []
+        detected_faces = []
         # the number of boxes indicates the number of faces detected
         for i in range(len(total_boxes)):
             bbox = total_boxes[i][:4]
             score = total_boxes[i][4:]
-            detectedFaces.append({'bbox': bbox.tolist(), 'points': points.tolist(), 'score': score[i]})
+            detected_face = Face()
+            detected_face.face_rectangle = bbox.tolist()
+            landmarks = []
+            for p in range(len(points)):
+                landmarks.append(float(points[p][i]))
+            detected_face.face_landmarks = landmarks
+            detected_face.confidence = score[0]
+            self.store_face(detected_face)
+            detected_faces.append(detected_face.json())
 
-        return detectedFaces
+        return detected_faces
+
+    def store_faces(self, faces):
+        for i in range(len(faces)):
+            self.store_face(faces[i])
+
+        return None
+
+    def store_face(self, face):
+        db.session.add(face)
+        db.session.commit()
 
     def __init__(self):
         self.gpu_memory_fraction = 0.4

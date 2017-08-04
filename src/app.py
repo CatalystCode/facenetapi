@@ -1,13 +1,13 @@
-from flask import Flask, jsonify, request
-from flask_restful import reqparse, abort, Api, Resource
-from models import db
-from Application import Application
-from PIL import Image
-import requests
-import cv2, json
-import io
+import sys
 import urllib.request
+import cv2
 import numpy as np
+from flask import Flask, request
+from flask_restful import Api, Resource
+from src.models import db
+from src.application import Application
+
+sys.path.append("/src/")
 
 app = Flask(__name__)
 api = Api(app)
@@ -24,8 +24,13 @@ app.config['DEBUG'] = True
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://%(user)s:\
 %(pw)s@%(host)s:%(port)s/%(db)s' % POSTGRES
 db.init_app(app)
+with app.app_context():
+    # Extensions like Flask-SQLAlchemy now know what the "current" app
+    # is while within this block. Therefore, you can now run........
+    db.create_all()
 
 application = Application()
+
 
 class FaceDetect(Resource):
     def post(self):
@@ -37,10 +42,18 @@ class FaceDetect(Resource):
         with urllib.request.urlopen(url) as resp:
             img = np.asarray(bytearray(resp.read()), dtype="uint8")
             img = cv2.imdecode(img, cv2.IMREAD_COLOR)
-        detectedFaces = json.dumps(application.detect_face(img))
-        return jsonify({'detectedFaces': detectedFaces})
+        detected_faces = application.detect_face(img)
+        return {'detected_faces': detected_faces}
+
+class FaceVerify(Resource):
+    def post(self):
+        return None
+
+class FindSimilar(Resource):
+    def post(self):
+        return None
 
 api.add_resource(FaceDetect, '/facedetect')
 
 if __name__ == "__main__":
-    app.run()
+    app.run(port=5001)

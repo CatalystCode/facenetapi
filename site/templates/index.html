@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Facenet API</title>
+
+    <link     href='http://fonts.googleapis.com/css?family=Sintony:400,700'     rel='stylesheet' type='text/css'>
+
+    <style type="text/css">
+      body
+      {
+        background-color:white;
+      }
+
+      h1
+      {
+        font-size:48px;
+        margin-top:0;
+        font-family:Arial, sans-serif;
+        letter-spacing:4px;
+        text-decoration:none;
+        color:#BBB;
+      }
+
+      h2
+      {
+        margin-top:0;
+        font-family:Arial, sans-serif;
+        color:#000;
+      }
+
+      #banner
+      {
+        width:auto;
+        height:40px;
+        text-align:center;
+        background-repeat:no-repeat;
+        border-radius:5px;
+        margin:30px auto auto;
+        padding:30px 0;
+      }
+
+      .lead
+      {
+        background-color:rgba(255,255,255,0.6);
+        border-radius:3px;
+        box-shadow:rgba(0,0,0,0.2) 0 1px 3px;
+        font-family:Sintony, sans-serif;
+      }
+
+      .form
+      {
+        width:auto;
+        margin:30px auto auto;
+        text-align:center;
+      }
+
+      .results
+      {
+        background-color:white;
+        width:auto;
+        height:auto;
+        text-align:center;
+        margin:30px auto auto;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="banner">
+      <h1>facenet API demo</h1>
+      <p class="lead"></p>
+    </div>
+    <div id="detectform" class="form">
+        <h2>Paste an image URL to detect faces</h2>
+        <form action="/detect" method="post">
+            <input type="text" name="imageURL" width="500px"/>
+            <input type="submit" value="detect"/>
+        </form>
+        <div class="results">
+            <img src="data:image/jpeg;base64,{{ image }}" />
+        </div>
+    </div>
+    <div id="verify" class="form">
+        <h2>Paste two image URLs to verify if they are the same person</h2>
+        <form action="/verify" method="post">
+            <input type="text" name="imageURL1" width="500px"/>
+            <input type="text" name="imageURL2" width="500px"/>
+            <input type="submit" value="verify"/>
+        </form>
+        <div class="results">
+            <img src="data:image/jpeg;base64,{{ image }}" />
+        </div>
+    </div>
+  </body>
+</html>

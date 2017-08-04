@@ -28,11 +28,17 @@ class BaseModel(db.Model):
             for column, value in self._to_dict().items()
         }
 
+
 class Face(BaseModel):
     """model for one of your table"""
     __tablename__ = 'faces'
 
     # define your model
-    id = db.Column(db.Integer, primary_key = True)
+    id = db.Column(db.Integer, primary_key=True)
     face_rectangle = db.Column(postgresql.ARRAY(db.Float, dimensions=1))
-    faceLandmarks = db.Column(postgresql.ARRAY(db.Float, dimensions=1))
+    face_landmarks = db.Column(postgresql.ARRAY(db.Float, dimensions=1))
+    confidence = db.Column(db.Float)
+
+    def _to_dict(self):
+        return {'id': self.id, 'face_rectangle': self.face_rectangle,
+                'face_landmarks': self.face_landmarks, 'confidence': self.confidence}
