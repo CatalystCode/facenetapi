@@ -63,6 +63,12 @@
         text-align:center;
         margin:30px auto auto;
       }
+
+      .resultsTable
+      {
+        width:100%;
+        margin:30px auto auto;
+      }
     </style>
   </head>
 
@@ -81,15 +87,29 @@
             <img src="data:image/jpeg;base64,{{ image }}" />
         </div>
     </div>
-    <div id="verify" class="form">
+    <div id="compare" class="form">
         <h2>Paste two image URLs to verify if they are the same person</h2>
-        <form action="/verify" method="post">
+        <form action="/compare" method="post">
             <input type="text" name="imageURL1" width="500px"/>
             <input type="text" name="imageURL2" width="500px"/>
-            <input type="submit" value="verify"/>
+            <input type="submit" value="compare"/>
         </form>
         <div class="results">
-            <img src="data:image/jpeg;base64,{{ image }}" />
+            <table class="resultsTable">
+                <tr><h3>{{verify_result}}</h3></tr>
+                <tr>
+                    <td width="50%">
+                        <div>
+                            <img height="400" src="{{ image1 }}" align="right" />
+                        </div>
+                    </td>
+                    <td width="50%">
+                        <div>
+                            <img height="400" src="{{ image2 }}" align="left" />
+                        </div>
+                    </td>
+                </tr>
+            </table>
         </div>
     </div>
   </body>

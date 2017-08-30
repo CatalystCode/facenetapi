@@ -7,7 +7,8 @@ A RESTful API for the facenet neural net
 * face verification - are two faces the same person?
 * similar face search
 
-This project makes use of the [facenet](https://github.com/davidsandberg/facenet) project.
+This project makes use of the [facenet](https://github.com/davidsandberg/facenet) project. You will have to follow
+setup instructions from this project for the facenet neural network to function.
 
 *Work complete:*
 * detect faces by passing an image URL
@@ -18,3 +19,4 @@ This project makes use of the [facenet](https://github.com/davidsandberg/facenet
 * verify two images are the same person with degree of confidence
 * similar face search
 * deployment instructions/setup
+

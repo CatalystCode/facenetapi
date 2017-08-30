@@ -22,19 +22,17 @@ def detect():
 
     return render_template('index.html', detected_faces=detected_faces, image=image)
 
-@app.route('/verify', methods=['POST'])
+@app.route('/compare', methods=['POST'])
 def verify():
     image_url1 = request.form['imageURL1']
     image_url2 = request.form['imageURL2']
 
     data = json.dumps({'url1': image_url1, 'url2': image_url2})
-    url = facenetapiURL + '/faceverify'
+    url = facenetapiURL + '/facecompare'
     response = requests.post(url, data=data)
-    verify_results = response.json()
+    verify_result = response.json()
 
-    image = render_detect_results(image_url1, verify_results['detected_faces'])
-
-    return render_template('index.html', detected_faces=verify_results, image=image)
+    return render_template('index.html', verify_result=verify_result, image1=image_url1, image2=image_url2)
 
 if __name__ == '__main__':
     app.run()

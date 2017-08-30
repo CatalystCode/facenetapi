@@ -42,3 +42,16 @@ class Face(BaseModel):
     def _to_dict(self):
         return {'id': self.id, 'face_rectangle': self.face_rectangle,
                 'face_landmarks': self.face_landmarks, 'confidence': self.confidence}
+
+class CompareResult(BaseModel):
+    __tablename__ = 'compare_results'
+
+    # define your model
+    id = db.Column(db.Integer, primary_key=True)
+    face_rectangle = db.Column(postgresql.ARRAY(db.Float, dimensions=1))
+    face_landmarks = db.Column(postgresql.ARRAY(db.Float, dimensions=1))
+    confidence = db.Column(db.Float)
+
+    def _to_dict(self):
+        return {'id': self.id, 'face_rectangle': self.face_rectangle,
+                'face_landmarks': self.face_landmarks, 'confidence': self.confidence}
