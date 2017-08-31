@@ -10,13 +10,15 @@ A RESTful API for the facenet neural net
 This project makes use of the [facenet](https://github.com/davidsandberg/facenet) project. You will have to follow
 setup instructions from this project for the facenet neural network to function.
 
+Download the pre-trained [model](https://drive.google.com/file/d/0B5MzpY9kBtDVZ2RpVDYwWmxoSUk) and extract into "facenet/src/models"
+
 *Work complete:*
 * detect faces by passing an image URL
-* store faces in a postgresql db
+* ~~store faces in a postgresql db~~
 * display detection results in demo site
+* verify two images contain the same face and display results in demo page
 
 *To-do list:*
-* verify two images are the same person with degree of confidence
 * similar face search
 * deployment instructions/setup
 
