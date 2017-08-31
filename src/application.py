@@ -2,25 +2,61 @@
 
 import numpy as np
 import tensorflow as tf
-
 from facenet.src.align import detect_face
 from src.models import Face, db
 from facenet.src import facenet
 from scipy import misc
 
 class Application:
-
     def detect_faces(self, img):
         # convert img into an array
         im = np.array(img.data)
+        bounding_boxes, points = self.detect_faces_nn(im)
+        detected_faces = self.get_detected_faces(bounding_boxes, points)
+        detected_faces_json = []
+        # the number of boxes indicates the number of faces detected
+        for i in range(len(detected_faces)):
+            #self.store_face(detected_faces[i])
+            detected_faces_json.append(detected_faces[i].json())
+        return detected_faces_json
 
-        total_boxes, points = self.detect_face(im)
+    # returns the L2 distribution representing the differences between faces
+    # if the dist is < .99, then it's the same person
+    def compare_faces(self, img1, img2):
+        bounding_boxes, points = self.detect_faces_nn(img1)
+        aligned_img1 = self.align_img(img1, bounding_boxes, self.image_size, self.margin)
+        bounding_boxes, points = self.detect_faces_nn(img2)
+        aligned_img2 = self.align_img(img2, bounding_boxes, self.image_size, self.margin)
+        aligned_img_list = [None] * 2
+        aligned_img_list[0] = aligned_img1
+        aligned_img_list[1] = aligned_img2
+        images = np.stack(aligned_img_list)
+        emb = self.get_embeddings(images)
+        result = False
+        for i in range(len(images)):
+            print('%1d  ' % i, end='')
+            dist = 0.0
+            for j in range(len(images)):
+                dist = np.sqrt(np.sum(np.square(np.subtract(emb[i, :], emb[j, :]))))
+                print('  %1.4f  ' % dist, end='')
+            if dist > 0.0 and dist <= self.compare_threshold:
+                result = True
+                break
+        return result
 
+    # detects faces using a neural network
+    def detect_faces_nn(self, img):
+        bounding_boxes, points = detect_face.detect_face(img, self.minsize, self.pnet, self.rnet,
+                                                      self.onet, self.threshold, self.factor)
+        return bounding_boxes, points
+
+    # converts the detected faces from the NN to a data model
+    def get_detected_faces(self, bounding_boxes, points):
         detected_faces = []
         # the number of boxes indicates the number of faces detected
-        for i in range(len(total_boxes)):
-            bbox = total_boxes[i][:4]
-            score = total_boxes[i][4:]
+        for i in range(len(bounding_boxes)):
+            bbox = bounding_boxes[i][:4]
+            score = bounding_boxes[i][4:]
             detected_face = Face()
             detected_face.face_rectangle = bbox.tolist()
             landmarks = []
@@ -28,53 +64,12 @@ class Application:
                 landmarks.append(float(points[p][i]))
             detected_face.face_landmarks = landmarks
             detected_face.confidence = score[0]
-            self.store_face(detected_face)
-            detected_faces.append(detected_face.json())
-
+            detected_faces.append(detected_face)
         return detected_faces
 
-    # returns the L2 distribution representing the differences between faces
-    # if the dist is < .99, then it's the same person
-    def compare_faces(self, img1, img2):
-
-        aligned_img1 = self.align_img(img1, self.image_size, self.margin)
-        aligned_img2 = self.align_img(img2, self.image_size, self.margin)
-
-        aligned_img_list = [None] * 2
-        aligned_img_list[0] = aligned_img1
-        aligned_img_list[1] = aligned_img2
-
-        images = np.stack(aligned_img_list)
-
-        emb = self.get_embeddings(images)
-
-        result = False
-
-        for i in range(len(images)):
-
-            print('%1d  ' % i, end='')
-            dist = 0.0
-            for j in range(len(images)):
-                dist = np.sqrt(np.sum(np.square(np.subtract(emb[i, :], emb[j, :]))))
-                print('  %1.4f  ' % dist, end='')
-
-            if dist > 0.0 and dist <= self.compare_threshold:
-                result = True
-                break
-
-        return result
-
-    def detect_face(self, img):
-        bounding_boxes, points = detect_face.detect_face(img, self.minsize, self.pnet, self.rnet,
-                                                      self.onet, self.threshold, self.factor)
-
-        return bounding_boxes, points
-
-    def align_img(self, img, image_size, margin):
-
+    # aligns and prewhitens the detected faces from the image
+    def align_img(self, img, bounding_boxes, image_size, margin):
         img_size = np.asarray(img.shape)[0:2]
-        bounding_boxes, _ = self.detect_face(img)
-
         det = np.squeeze(bounding_boxes[0, 0:4])
         bb = np.zeros(4, dtype=np.int32)
         bb[0] = np.maximum(det[0] - margin / 2, 0)
@@ -84,25 +79,21 @@ class Application:
         cropped = img[bb[1]:bb[3], bb[0]:bb[2], :]
         aligned = misc.imresize(cropped, (image_size, image_size), interp='bilinear')
         aligned_img = facenet.prewhiten(aligned)
-
         return aligned_img
 
+    # get the embeddings from the loaded model graph
     def get_embeddings(self, images):
         feed_dict = {self.images_placeholder: images, self.phase_train_placeholder: False}
         emb = self.sess.run(self.embeddings, feed_dict=feed_dict)
         return emb
 
-
     def verify_faces_by_id(self, face_id1, face_id2):
         # todo: figure out how to compare 2 stored faces
-
         return None
 
     def store_faces(self, faces):
         for i in range(len(faces)):
             self.store_face(faces[i])
-
-        return None
 
     def store_face(self, face):
         db.session.add(face)
