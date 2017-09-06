@@ -3,7 +3,7 @@
 import numpy as np
 import tensorflow as tf
 from facenet.src.align import detect_face
-from src.models import Face, db
+from models import Face, db
 from facenet.src import facenet
 from scipy import misc
 
@@ -100,6 +100,7 @@ class Application:
         db.session.commit()
 
     def __init__(self, model):
+        print("model path:{0}".format(model))
         self.gpu_memory_fraction = 0.4
         self.minsize = 20  # minimum size of face
         self.threshold = [0.6, 0.7, 0.7]  # three steps's threshold

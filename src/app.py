@@ -5,15 +5,15 @@ import cv2
 import numpy as np
 from flask import Flask, request
 from flask_restful import Api, Resource
-from src.models import db
-from src.application import Application
+from models import db
+from application import Application
 
 sys.path.append("/src/")
 
 app = Flask(__name__)
 api = Api(app)
 
-app.config['MODEL_PATH'] = './facenet/src/models/20170512-110547/20170512-110547.pb'
+app.config['MODEL_PATH'] = 'c:/code/facenetapi/facenet/src/models/20170512-110547/20170512-110547.pb'
 
 POSTGRES = {
     'user': 'postgres',
@@ -23,7 +23,7 @@ POSTGRES = {
     'port': '5432',
 }
 
-app.config['DEBUG'] = True
+app.config['DEBUG'] = False
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://%(user)s:\
 %(pw)s@%(host)s:%(port)s/%(db)s' % POSTGRES
 db.init_app(app)
@@ -72,8 +72,8 @@ class FindSimilar(Resource):
         url = json_data['url']
         return None
 
-api.add_resource(FaceDetect, '/facedetect')
-api.add_resource(FaceCompare, '/facecompare')
+api.add_resource(FaceDetect, '/face/detect')
+api.add_resource(FaceCompare, '/face/compare')
 
 if __name__ == "__main__":
     app.run(port=5001)

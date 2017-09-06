@@ -14,7 +14,7 @@ def detect():
     image_url = request.form['imageURL']
 
     data = json.dumps({'url': image_url})
-    url = facenetapiURL + '/facedetect'
+    url = facenetapiURL + '/face/detect'
     response = requests.post(url, data=data)
     detected_faces = response.json()
 
@@ -28,7 +28,7 @@ def verify():
     image_url2 = request.form['imageURL2']
 
     data = json.dumps({'url1': image_url1, 'url2': image_url2})
-    url = facenetapiURL + '/facecompare'
+    url = facenetapiURL + '/face/compare'
     response = requests.post(url, data=data)
     verify_result = response.json()
 
