@@ -8,7 +8,7 @@ itsdangerous==0.24
 jinja2==2.9.6
 markdown==2.2.0
 markupsafe==1.0
-opencv-python==3.2.0.7
+opencv-python
 protobuf==3.3.0
 sqlalchemy==1.1.12
 tensorflow-gpu==1.2.0
